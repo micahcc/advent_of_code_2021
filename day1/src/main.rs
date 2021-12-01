@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 fn main() {
     let depths = [
         191, 192, 201, 205, 206, 203, 188, 189, 199, 206, 224, 230, 233, 232, 260, 257, 258, 259,
@@ -133,16 +135,37 @@ fn main() {
         5787, 5783, 5791,
     ];
 
-    let mut inc_count: i32 = 0;
-    let mut prev: i32 = 5791;
-    for v in depths.iter() {
-        if *v > prev {
-            println!("{} is greater than {}, count: {}", *v, prev, inc_count);
-            inc_count += (*v > prev) as i32;
-        } else {
-            println!("{} is <= than {}, count: {}", *v, prev, inc_count);
+    {
+        let mut inc_count: i32 = 0;
+        let mut prev: i32 = 5791;
+        for v in depths.iter() {
+            if *v > prev {
+                inc_count += (*v > prev) as i32;
+            }
+            prev = *v;
         }
-        prev = *v;
+        println!("Increase count: {}", inc_count);
     }
-    println!("Increase count: {}", inc_count);
+
+    // phase 2, sliding window of 3
+    {
+        let mut prev_count: i32;
+        let mut curr_count: i32 = 0;
+        let mut inc_count: i32 = 0;
+        let mut window: VecDeque<i32> = VecDeque::new();
+
+        for v in depths.iter() {
+            prev_count = curr_count;
+            while window.len() >= 3 {
+                curr_count -= window.pop_front().unwrap();
+            }
+            curr_count += *v;
+            window.push_back(*v);
+
+            if window.len() == 3 && curr_count > prev_count {
+                inc_count += 1;
+            }
+        }
+        println!("Increase count: {}", inc_count);
+    }
 }
